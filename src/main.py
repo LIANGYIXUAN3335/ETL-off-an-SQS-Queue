@@ -22,20 +22,22 @@ def main_function(endpoint_url, region, db_params):
             database.create_table_if_not_exists(conn)
 
             logging.info("Receiving messages from SQS...")
-            messages = sqs_client.receive_messages_from_sqs(sqs, queue_url)
-            if not messages:
-                logging.warning("No messages received from SQS.")
-            else:
-                logging.info(f"Received {len(messages)} messages from SQS. Processing...")
-                message_processing.process_and_store_messages(messages, conn, sqs, queue_url)
-                conn.commit()
-                logging.info("Messages processed and saved to database.")
-                for message in messages:
-                    try:
-                        sqs_client.delete_processed_message(sqs, queue_url, message['ReceiptHandle'])
-                        logging.info(f"Deleted message with ID: {message} from SQS.")
-                    except Exception as e:
-                        logging.error(f"Error while deleting message with ID: {message} from SQS. Error: {str(e)}")     
+            while True:
+                messages = sqs_client.receive_messages_from_sqs(sqs, queue_url)
+                if not messages:
+                    logging.warning("No messages received from SQS.")
+                    break
+                else:
+                    logging.info(f"Received {len(messages)} messages from SQS. Processing...")
+                    message_processing.process_and_store_messages(messages, conn, sqs, queue_url)
+                    conn.commit()
+                    logging.info("Messages processed and saved to database.")
+                    for message in messages:
+                        try:
+                            sqs_client.delete_processed_message(sqs, queue_url, message['ReceiptHandle'])
+                            logging.info(f"Deleted message with ID: {message['MessageId']} from SQS.")
+                        except Exception as e:
+                            logging.error(f"Error while deleting message with ID: {message} from SQS. Error: {str(e)}")     
     except Exception as e:
         logging.error(f"Error while processing: {str(e)}")
         if conn:

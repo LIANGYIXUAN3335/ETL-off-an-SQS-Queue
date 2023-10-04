@@ -26,23 +26,21 @@ This application is designed to efficiently and securely process messages from a
 1. **Setup Dependencies**: Ensure `docker-compose` is installed.
 
    ```
-   bashCopy code
    docker-compose --version
    ```
 
 2. **Start Required Services**: Run LocalStack and PostgreSQL containers.
 
    ```
-   bashCopy code
-   docker-compose up --detach
+   docker-compose up 
    ```
 
-3. **Build & Run Data Pipeline**:
+3. **Read a message from the queue using awslocal**:
 
    ```
-   bashCopy codedocker build -t debanjalisaha/fetch_data_pipeline .
-   docker run debanjalisaha/fetch_data_pipeline
+   awslocal sqs receive-message --queue-url http://localhost:4566/000000000000/login-queue
    ```
+   Then will get the messages structure like below
 {
     "Messages": [
         {
@@ -56,17 +54,16 @@ This application is designed to efficiently and securely process messages from a
 4. **Verify Data**: Open PostgreSQL and check the `user_logins` table.
 
    ```
-   bashCopy codepsql -d postgres -U postgres -p 5432 -h localhost -W
+   psql -d postgres -U postgres -p 5432 -h localhost -W
    postgres=# select * from user_logins; 
    ```
 ## Thought Process
 
 ### Design Considerations:
 
-1. **Batch Processing**: To optimize performance, we process messages in batches. This reduces the number of calls to the SQS service.
-2. **Privacy First**: Given the sensitivity of IP and Device IDs, we employed SHA256 hashing to mask these fields. This ensures data privacy while maintaining the uniqueness and consistency of the data.
-3. **Reliability**: Messages are deleted from the queue only after successful processing and storage in PostgreSQL, ensuring data integrity.
-4. **Continuous Polling**: The system continuously polls the queue until it's empty, ensuring all messages are processed.
+1. **Privacy First**: Given the sensitivity of IP and Device IDs, we employed SHA256 hashing to mask these fields. This ensures data privacy while maintaining the uniqueness and consistency of the data.
+2. **Reliability**: Messages are deleted from the queue only after successful processing and storage in PostgreSQL, ensuring data integrity.
+3. **Continuous Polling**: The system continuously pulls the queue until it's empty, ensuring all messages are processed.
 
 ### Assumptions Made:
 
@@ -75,14 +72,14 @@ This application is designed to efficiently and securely process messages from a
 - Valid JSON structure in SQS messages.
 - Pre-existing table schema in PostgreSQL.
 - SHA256 as an acceptable masking technique.
-- Properly configured Docker test images.
+- Properly configured unit tests.
 
 ### Potential Improvements:
 
 - Integrate with Airflow for better pipeline orchestration.
 - Use reversible hashing or token-based techniques for PII recovery.
 - Consider NoSQL storage for JSON data.
-- Implement rich data visualization using tools like PowerBI or Splunk.
+- Implement rich data visualization using tools like matplotlib.
 
 ## Problems
 
