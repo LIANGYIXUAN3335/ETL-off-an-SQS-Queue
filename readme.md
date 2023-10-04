@@ -57,9 +57,33 @@ This application is designed to efficiently and securely process messages from a
    psql -d postgres -U postgres -p 5432 -h localhost -W
    postgres=# select * from user_logins; 
    ```
-## Thought Process
+5. **Download GitHub Files**: First, users need to download the application files from your GitHub repository. 
+   by visiting the following GitHub link: https://github.com/LIANGYIXUAN3335/ETL-off-an-SQS-Queue.
 
-### Design Considerations:
+6. **Unzip the Files**: Users should unzip the downloaded zip file. They can extract the files to a directory of their choice.
+
+7. **Open a Command Line Interface**: Users should open a command line interface (such as Terminal or Command Prompt) and navigate to the extracted application folder. This can be done using the cd command. For example:
+   ```
+   cd /path/to/ETL-off-an-SQS-Queue
+   ```
+8. **Run the Application**: Once inside the application folder, users can run the application entry command provided by you. 
+   ```
+   python -m src.main
+   ```
+   Result will be like this
+   2023-10-04 12:19:49,780 - INFO - Received 1 messages to process.
+   2023-10-04 12:19:49,781 - INFO - Starting to process message with ID: 1e73d036-a30a-4639-97f6-351a2d14b751.
+   2023-10-04 12:19:49,781 - INFO - Processing message with ID: 1e73d036-a30a-4639-97f6-351a2d14b751
+   2023-10-04 12:19:49,782 - INFO - Finished processing all messages.
+   2023-10-04 12:19:49,782 - INFO - Messages processed and saved to database.
+   2023-10-04 12:19:49,799 - INFO - Deleted message with ID: 1e73d036-a30a-4639-97f6-351a2d14b751 from SQS.
+   2023-10-04 12:19:49,816 - INFO - Received 1 messages from SQS. Processing...
+   2023-10-04 12:19:49,816 - INFO - Received 1 messages to process.
+   2023-10-04 12:19:49,816 - INFO - Starting to process message with ID: 23d6fc95-5364-4d5b-a788-559e6fa6b1ff.
+   2023-10-04 12:19:49,816 - INFO - Processing message with ID: 23d6fc95-5364-4d5b-a788-559e6fa6b1ff
+   2023-10-04 12:19:49,817 - INFO - Finished processing all messages.
+9. **Check the Postgres**
+![Alt text](image.png)
 
 1. **Privacy First**: Given the sensitivity of IP and Device IDs, we employed SHA256 hashing to mask these fields. This ensures data privacy while maintaining the uniqueness and consistency of the data.
 2. **Reliability**: Messages are deleted from the queue only after successful processing and storage in PostgreSQL, ensuring data integrity.
