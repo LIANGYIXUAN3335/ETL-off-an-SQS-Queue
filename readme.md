@@ -82,9 +82,9 @@ This application is designed to efficiently and securely process messages from a
    2023-10-04 12:19:49,816 - INFO - Starting to process message with ID: 23d6fc95-5364-4d5b-a788-559e6fa6b1ff.
    2023-10-04 12:19:49,816 - INFO - Processing message with ID: 23d6fc95-5364-4d5b-a788-559e6fa6b1ff
    2023-10-04 12:19:49,817 - INFO - Finished processing all messages.
-9. **Check the Postgres**
+9. **Run the Application**
 ![Alt text](image.png)
-
+### Thoughts of design:
 1. **Privacy First**: Given the sensitivity of IP and Device IDs, we employed SHA256 hashing to mask these fields. This ensures data privacy while maintaining the uniqueness and consistency of the data.
 2. **Reliability**: Messages are deleted from the queue only after successful processing and storage in PostgreSQL, ensuring data integrity.
 3. **Continuous Polling**: The system continuously pulls the queue until it's empty, ensuring all messages are processed.
