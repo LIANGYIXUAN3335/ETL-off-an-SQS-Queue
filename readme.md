@@ -41,7 +41,9 @@ This application is designed to efficiently and securely process messages from a
    awslocal sqs receive-message --queue-url http://localhost:4566/000000000000/login-queue
    ```
    Then will get the messages structure like below
-{
+
+   ```json
+   {
     "Messages": [
         {
             "MessageId": "1a8c0722-fd55-49c0-9d63-b88d066c902d",
@@ -50,25 +52,32 @@ This application is designed to efficiently and securely process messages from a
             "Body": "{\"user_id\": \"424cdd21-063a-43a7-b91b-7ca1a833afae\", \"app_version\": \"2.3.0\", \"device_type\": \"android\", \"ip\": \"199.172.111.135\", \"locale\": \"RU\", \"device_id\": \"593-47-5928\"}"
         }
     ]
-}
+   }
+   ```
+
+   
+
 4. **Verify Data**: Open PostgreSQL and check the `user_logins` table.
 
-   ```
+   ```shell
    psql -d postgres -U postgres -p 5432 -h localhost -W
    postgres=# select * from user_logins; 
    ```
-5. **Download GitHub Files**: First, users need to download the application files from your GitHub repository. 
+   
+5. **Download GitHub Files**: First,   download the application files from GitHub repository. 
    by visiting the following GitHub link: https://github.com/LIANGYIXUAN3335/ETL-off-an-SQS-Queue.
 
-6. **Unzip the Files**: Users should unzip the downloaded zip file. They can extract the files to a directory of their choice.
-
-7. **Open a Command Line Interface**: Users should open a command line interface (such as Terminal or Command Prompt) and navigate to the extracted application folder. This can be done using the cd command. For example:
-   ```
+7. **Open a Command Line Interface**: We should open a command line interface (such as Terminal or Command Prompt) and navigate to the extracted application folder. This can be done using the cd command. For example:
+   
+   ```shell
    cd /path/to/ETL-off-an-SQS-Queue
    ```
+   
 8. **Run the Application**: Once inside the application folder, users can run the application entry command provided by you. 
+   
    ```
    python -m src.main
+   ```
    ```
    Result will be like this
    2023-10-04 12:19:49,780 - INFO - Received 1 messages to process.
@@ -82,6 +91,10 @@ This application is designed to efficiently and securely process messages from a
    2023-10-04 12:19:49,816 - INFO - Starting to process message with ID: 23d6fc95-5364-4d5b-a788-559e6fa6b1ff.
    2023-10-04 12:19:49,816 - INFO - Processing message with ID: 23d6fc95-5364-4d5b-a788-559e6fa6b1ff
    2023-10-04 12:19:49,817 - INFO - Finished processing all messages.
+   ```
+   
+   
+   
 9. **Run the Application**
 ![Alt text](image.png)
 ### Thoughts of design:
@@ -119,8 +132,7 @@ This application is designed to efficiently and securely process messages from a
    **Thought Process**: An application in production should be stable, secure, and efficiently handle errors.
 
    - Integrate **AWS Lambda** with **SQS**. Whenever data is pulled from the SQS queue, Lambda can be triggered to process it. This serverless architecture can offer auto-scalability and reduce maintenance overhead.
-   - To enhance the application's performance further, we can incorporate Redis as a caching layer to cache frequently accessed data and reduce redundant database queries.
-
+   
 3. **How can this application scale with a growing dataset?**
 
    **Thought Process**: As the data grows, we need to ensure that the system's response time doesn't degrade significantly while maintaining data consistency.

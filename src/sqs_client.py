@@ -9,7 +9,7 @@ def create_sqs_client(endpoint_url, region, aws_access_key, aws_secret_key):
 def receive_messages_from_sqs(sqs, queue_url):
     """Receive messages from SQS queue. Currently fetches one message at a time."""
     try:
-        response = sqs.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1)
+        response = sqs.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=10)
         return response.get('Messages', [])
     except NoCredentialsError:
         print("No AWS credentials found.")
@@ -21,4 +21,23 @@ def delete_processed_message(sqs, queue_url, receipt_handle):
         sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
     except Exception as e:
         print(f"Error deleting message: {str(e)}")
+        raise
+def delete_processed_messages_batch(sqs, queue_url, messages):
+    """
+    Delete processed messages in batch from SQS to prevent reprocessing.
+    :param sqs: Boto3 SQS client.
+    :param queue_url: URL of the SQS queue.
+    :param messages: List of messages with their receipt handles to be deleted.
+    """
+    try:
+        entries = [{'Id': str(idx), 'ReceiptHandle': msg['ReceiptHandle']} for idx, msg in enumerate(messages)]
+        response = sqs.delete_message_batch(QueueUrl=queue_url, Entries=entries)
+        
+        # Checking for any failed deletions and log them
+        if 'Failed' in response:
+            for failure in response['Failed']:
+                print(f"Failed to delete message {failure['Id']}: {failure['Message']}")
+
+    except Exception as e:
+        print(f"Error deleting messages: {str(e)}")
         raise

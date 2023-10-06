@@ -1,25 +1,41 @@
 import unittest
 import os 
 import sys
+import base64
+from Crypto.Cipher import DES
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.maskpii import hash_data, mask_data, flatten_json
+from src.credentials import getDESKEY
+DES_KEY = getDESKEY()
 
 class TestMaskPii(unittest.TestCase):
-    def test_hash_data(self):
-        data = "hello"
-        expected = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
-        self.assertEqual(hash_data(data), expected)
+
+    def test_pad(self):
+        """Test the padding function."""
+        self.assertEqual(pad('1234567'), '1234567 ')
+        self.assertEqual(pad('12345678'), '12345678')  # No padding added if string is already a multiple of 8
+        self.assertEqual(pad('123456789'), '123456789       ')
+
+    def test_des_encrypt(self):
+        """Test the DES encryption function."""
+        data = "test_data"
+        encrypted = des_encrypt(data)
+        cipher = DES.new(DES_KEY, DES.MODE_ECB)
+        # Decrypt and remove padding for verification
+        decrypted = cipher.decrypt(base64.b64decode(encrypted)).decode('utf-8').rstrip()
+        self.assertEqual(data, decrypted)
 
     def test_mask_data(self):
-        data = {
-            'ip': '127.0.0.1',
-            'device_id': 'device123'
+        """Test the masking function."""
+        input_data = {
+            'ip': '192.168.1.1',
+            'device_id': 'device123',
+            'other_field': 'keep_this'
         }
-        expected = {
-            'ip': hash_data('127.0.0.1'),
-            'device_id': hash_data('device123')
-        }
-        self.assertEqual(mask_data(data), expected)
+        masked = mask_data(input_data)
+        self.assertNotEqual(masked['ip'], '192.168.1.1')
+        self.assertNotEqual(masked['device_id'], 'device123')
+        self.assertEqual(masked['other_field'], 'keep_this')
 
     def test_flatten_json(self):
         data = {

@@ -1,12 +1,19 @@
 import psycopg2
 import logging
-
+from psycopg2 import pool
+from . import credentials
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+db_pool = None  
+def init_db_pool(db_params, minconn=1, maxconn=10):
+    global db_pool
+    db_pool = pool.SimpleConnectionPool(minconn, maxconn, **db_params)
+def get_conn_from_pool():
+    return db_pool.getconn()
 
-def connect_db(db_params):
-    conn = psycopg2.connect(**db_params)
-    return conn
-
+def release_conn_to_pool(conn):
+    db_pool.putconn(conn)
+def connect_db():
+    return get_conn_from_pool()
 def create_table_if_not_exists(conn):
     try:
         conn.cursor().execute(
@@ -41,7 +48,5 @@ def insert_records(conn, records):
     except Exception as e:
         logging.error(f"An error occurred while inserting data: {str(e)}")
         raise  # Re-raise the exception
-
-def close_db(cur, conn):
-    cur.close()
-    conn.close()
+def close_db_pool():
+    db_pool.closeall()

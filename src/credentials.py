@@ -24,3 +24,5 @@ def get_db_params():
         'port': '5432',
     }
     return db_params
+def getDESKEY():
+    return  b'35870191'
