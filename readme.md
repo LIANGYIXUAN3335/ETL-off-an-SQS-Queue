@@ -63,18 +63,24 @@ This application is designed to efficiently and securely process messages from a
    psql -d postgres -U postgres -p 5432 -h localhost -W
    postgres=# select * from user_logins; 
    ```
-   
+
 5. **Download GitHub Files**: First,   download the application files from GitHub repository. 
    by visiting the following GitHub link: https://github.com/LIANGYIXUAN3335/ETL-off-an-SQS-Queue.
 
-7. **Open a Command Line Interface**: We should open a command line interface (such as Terminal or Command Prompt) and navigate to the extracted application folder. This can be done using the cd command. For example:
-   
+6. **Open a Command Line Interface**: We should open a command line interface (such as Terminal or Command Prompt) and navigate to the extracted application folder. This can be done using the cd command. For example:
+
    ```shell
    cd /path/to/ETL-off-an-SQS-Queue
    ```
-   
+
+7. Download all requirement packages
+
+   ```shell
+   pip install -r requirements.txt
+   ```
+
 8. **Run the Application**: Once inside the application folder, users can run the application entry command provided by you. 
-   
+
    ```
    python -m src.main
    ```
@@ -92,13 +98,13 @@ This application is designed to efficiently and securely process messages from a
    2023-10-04 12:19:49,816 - INFO - Processing message with ID: 23d6fc95-5364-4d5b-a788-559e6fa6b1ff
    2023-10-04 12:19:49,817 - INFO - Finished processing all messages.
    ```
+
    
-   
-   
+
 9. **Run the Application**
-![Alt text](image.png)
+  ![Alt text](image.png)
 ### Thoughts of design:
-1. **Privacy First**: Given the sensitivity of IP and Device IDs, we employed SHA256 hashing to mask these fields. This ensures data privacy while maintaining the uniqueness and consistency of the data.
+1. **Privacy First**: Given the sensitivity of IP and Device IDs, I employed DES hashing to mask these fields. This ensures data privacy while maintaining the uniqueness and consistency of the data.
 2. **Reliability**: Messages are deleted from the queue only after successful processing and storage in PostgreSQL, ensuring data integrity.
 3. **Continuous Polling**: The system continuously pulls the queue until it's empty, ensuring all messages are processed.
 
@@ -108,13 +114,11 @@ This application is designed to efficiently and securely process messages from a
 - Duplicates are allowed, assuming downstream data cleaning processes.
 - Valid JSON structure in SQS messages.
 - Pre-existing table schema in PostgreSQL.
-- SHA256 as an acceptable masking technique.
 - Properly configured unit tests.
 
 ### Potential Improvements:
 
-- Integrate with Airflow for better pipeline orchestration.
-- Use reversible hashing or token-based techniques for PII recovery.
+- Use 3DES hashing techniques for PII recovery to improve the security.
 - Consider NoSQL storage for JSON data.
 - Implement rich data visualization using tools like matplotlib.
 
@@ -125,7 +129,7 @@ This application is designed to efficiently and securely process messages from a
    **Thought Process**: Our primary objectives are ensuring high availability, scalability, and security of the application.
 
    - Utilize **Kubernetes (k8s)** for deploying and orchestrating the Docker containers. Kubernetes provides capabilities such as auto-deployment, rolling updates, integrated storage systems, and service discovery. This ensures our application remains healthy, and auto-scales based on the load.
-   - Sensitive information like database connection parameters, API keys, etc., should not be hardcoded or stored in plain text. We can consider using Kubernetes Secrets for storing such sensitive information, ensuring that only authorized pods have access.
+   - Sensitive information like database connection parameters, API keys, DES key etc., should not be hardcoded or stored in plain text. We can consider using Kubernetes Secrets for storing such sensitive information, ensuring that only authorized pods have access.
 
 2. **What other components would you want to add to make this production-ready?**
 
@@ -135,19 +139,19 @@ This application is designed to efficiently and securely process messages from a
    
 3. **How can this application scale with a growing dataset?**
 
-   **Thought Process**: As the data grows, we need to ensure that the system's response time doesn't degrade significantly while maintaining data consistency.
-
-   - Leverage the Horizontal Pod Autoscaling (HPA) feature of **Kubernetes**. With this, if the CPU or memory utilization goes beyond a specified threshold, the number of Pods can be increased automatically to cater to more traffic.
-   - Use **Amazon Kinesis** for stream processing of data. As the volume of data increases, Kinesis can offer real-time data stream processing, and in conjunction with Lambda, can ensure real-time processing of data.
+   - **Monitor SQS with CloudWatch**: Set alarms for high message accumulation.
+   - **Use Kubernetes HPA**: Auto-scale pods based on SQS CloudWatch metrics.
+   - **Adopt Multi-threaded Processing**: Handle multiple SQS messages concurrently within each pod.
+   - **Optimize Processing Logic**: Identify and address processing bottlenecks.
+   - **Database Optimizations**: Implement efficient data storage and querying strategies.
 
 4. **How can PII be recovered later on?**
 
    **Thought Process**: Even if we mask the data, there might be scenarios where we need the original data. Thus, we need a secure and reliable recovery mechanism.
 
-   - A viable approach is to encrypt the data before masking, and store this encrypted data in a restricted storage area. When there's a need to recover the original data, only those with the appropriate decryption keys can decipher it.
+   - 3DES is to encrypt the data before masking, and store this encrypted data in a restricted storage area. When there's a need to recover the original data, only those with the appropriate decryption keys can decipher it.
 
 5. **What are the assumptions you made?**
 
    - The input data always arrives in the expected format and structure.
-   - The Kubernetes cluster is correctly configured, including network policies, storage, logging, and monitoring.
    - The database is always accessible, and any connection failures are transient and can be resolved with retry strategies.
