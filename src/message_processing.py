@@ -8,10 +8,6 @@ def process_message(message):
     """
     logging.info(f"Starting to process message with ID: {message.get('MessageId')}.")
 
-    # if not _filter_messages(message):
-    #     logging.warning(f"Message with ID: {message.get('MessageId')} was filtered out.")
-    #     return None
-
     try:
         masked_data = maskpii.mask_data(json.loads(message['Body']))
         processed_message = {
@@ -27,18 +23,7 @@ def process_message(message):
         logging.error(f"Error while processing message with ID: {message.get('MessageId')}. Error: {str(e)}")
         return None
 
-def _filter_messages(message):
-    """Filter messages to only process 'login' type."""
-    logging.info(f"Entire message: {json.dumps(message, indent=4)}")  # Log the entire message for debugging
-    msg_type = message.get('msg_type')
-    if msg_type != 'login':
-        logging.info(f"Message with ID: {message.get('MessageId')} is of type '{msg_type}' and will be filtered out.")
-        return False
-    return True
-
-
-
-def write_message_to_postgres(masked_message, conn):
+def write_message_to_postgres(masked_messages, conn):
     """
     Write the processed message to the PostgreSQL database.
 
@@ -46,22 +31,22 @@ def write_message_to_postgres(masked_message, conn):
         masked_message (dict): The processed (masked) message.
         cur (cursor): The PostgreSQL cursor.
     """
-    records = [masked_message]
-    database.insert_records(conn, _convert_records_to_tuples(records))
+    database.insert_records(conn, _convert_records_to_tuples(masked_messages))
 
-def process_and_store_messages(messages, conn, sqs, queue_url):
+def process_and_store_messages(messages, conn):
     """Process messages from SQS and insert into the database."""
     logging.info(f"Received {len(messages)} messages to process.")
-    
+    process_messages = []
     for message in messages:
-        processed_message = process_message(message)
-        if processed_message:
-            logging.info(f"Processing message with ID: {message['MessageId']}")
-            write_message_to_postgres(processed_message, conn)
-        else:
-            logging.warning(f"Message with ID: {message['MessageId']} was filtered out or failed processing.")
+        process_messages.append(process_message(message))
+    if process_messages:
+        logging.info(f"Processing : {len(process_messages)} messages")
+        write_message_to_postgres(process_messages, conn)
+    else:
+        logging.warning(f"Message was filtered out or failed processing.")
 
     logging.info("Finished processing all messages.")
+    conn.commit()
 
 
 
