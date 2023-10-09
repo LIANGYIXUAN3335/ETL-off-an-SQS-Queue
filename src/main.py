@@ -37,7 +37,7 @@ def main_function(endpoint_url, region, db_params):
                     except Exception as e:
                         logging.error(f"Error while deleting message with length: {len(messages)} from SQS. Error: {str(e)}")     
     except Exception as e:
-        logging.error(f"Error while processing: {str(e)}")
+        logging.error(f"E: {str(e)}")
         if conn:
             conn.rollback()
     finally:

@@ -10,6 +10,7 @@ This application is designed to efficiently and securely process messages from a
 
 - Polls messages from a standard AWS SQS queue in batches of 10 messages per iteration.
 - Extracts message body, parses JSON data, and loads into a dataframe.
+- Filter data to get the valid messages.
 - Masks IP and Device ID fields using SHA256 hashing.
 - Stores the processed data in the `user_logins` table in PostgreSQL.
 - Deletes processed messages from the queue.
@@ -29,13 +30,20 @@ This application is designed to efficiently and securely process messages from a
    docker-compose --version
    ```
 
-2. **Start Required Services**: Run LocalStack and PostgreSQL containers.
+2. **Pull data** to docker
 
+   ```shell
+   docker pull fetchdocker/data-takehome-localstack
+   docker pull fetchdocker/data-takehome-postgres
    ```
+
+3. **Start Required Services**: Run LocalStack and PostgreSQL containers.
+
+   ```shell
    docker-compose up 
    ```
 
-3. **Read a message from the queue using awslocal**:
+4. **Read a message from the queue using awslocal**:
 
    ```
    awslocal sqs receive-message --queue-url http://localhost:4566/000000000000/login-queue
@@ -57,52 +65,62 @@ This application is designed to efficiently and securely process messages from a
 
    
 
-4. **Verify Data**: Open PostgreSQL and check the `user_logins` table.
+5. **Verify Data**: Open PostgreSQL and check the `user_logins` table.
 
    ```shell
    psql -d postgres -U postgres -p 5432 -h localhost -W
    postgres=# select * from user_logins; 
    ```
 
-5. **Download GitHub Files**: First,   download the application files from GitHub repository. 
+6. **Download GitHub Files**: First,   download the application files from GitHub repository. 
    by visiting the following GitHub link: https://github.com/LIANGYIXUAN3335/ETL-off-an-SQS-Queue.
 
-6. **Open a Command Line Interface**: We should open a command line interface (such as Terminal or Command Prompt) and navigate to the extracted application folder. This can be done using the cd command. For example:
+7. **Open a Command Line Interface**: We should open a command line interface (such as Terminal or Command Prompt) and navigate to the extracted application folder. This can be done using the cd command. For example:
 
    ```shell
    cd /path/to/ETL-off-an-SQS-Queue
    ```
 
-7. Download all requirement packages
+8. Download all requirement packages
 
    ```shell
    pip install -r requirements.txt
    ```
 
-8. **Run the Application**: Once inside the application folder, users can run the application entry command provided by you. 
+9. **Run the Application**: Once inside the application folder, users can run the application entry command provided by you. 
 
    ```
    python -m src.main
    ```
    ```
-   Result will be like this
-   2023-10-04 12:19:49,780 - INFO - Received 1 messages to process.
-   2023-10-04 12:19:49,781 - INFO - Starting to process message with ID: 1e73d036-a30a-4639-97f6-351a2d14b751.
-   2023-10-04 12:19:49,781 - INFO - Processing message with ID: 1e73d036-a30a-4639-97f6-351a2d14b751
-   2023-10-04 12:19:49,782 - INFO - Finished processing all messages.
-   2023-10-04 12:19:49,782 - INFO - Messages processed and saved to database.
-   2023-10-04 12:19:49,799 - INFO - Deleted message with ID: 1e73d036-a30a-4639-97f6-351a2d14b751 from SQS.
-   2023-10-04 12:19:49,816 - INFO - Received 1 messages from SQS. Processing...
-   2023-10-04 12:19:49,816 - INFO - Received 1 messages to process.
-   2023-10-04 12:19:49,816 - INFO - Starting to process message with ID: 23d6fc95-5364-4d5b-a788-559e6fa6b1ff.
-   2023-10-04 12:19:49,816 - INFO - Processing message with ID: 23d6fc95-5364-4d5b-a788-559e6fa6b1ff
-   2023-10-04 12:19:49,817 - INFO - Finished processing all messages.
+   2023-10-09 17:19:47,707 - INFO - Processing : 10 messages
+   2023-10-09 17:19:47,709 - INFO - Finished processing all messages.
+   2023-10-09 17:19:47,710 - INFO - Messages processed and saved to database.
+   2023-10-09 17:19:47,720 - INFO - Deleted message with length: 10 from SQS.
+   2023-10-09 17:19:47,731 - INFO - Received 10 messages from SQS. Processing...
+   2023-10-09 17:19:47,732 - INFO - Received 10 messages to process.
+   2023-10-09 17:19:47,732 - INFO - Starting to process message with ID: 90e8f5f2-a003-44b4-9bba-3fca6a72b35a.
+   2023-10-09 17:19:47,732 - INFO - Starting to process message with ID: 69c244a2-bd3a-498d-9063-1a46ac3bccf8.
+   2023-10-09 17:19:47,732 - INFO - Starting to process message with ID: d9fb100c-d8eb-45a9-a2c3-3bb73086a3bb.
+   2023-10-09 17:19:47,732 - INFO - Starting to process message with ID: 7556d90e-5e2a-4484-b10a-c61bc53b9953.
+   2023-10-09 17:19:47,733 - INFO - Starting to process message with ID: 822db50f-7e5d-4725-9bd4-d8e551becbf4.
+   2023-10-09 17:19:47,733 - INFO - Starting to process message with ID: b6b3c1c2-214e-4617-9fb1-421b5bd154e1.
+   2023-10-09 17:19:47,733 - INFO - Starting to process message with ID: b845598c-3daf-4500-aae3-dae3039cccf1.
+   2023-10-09 17:19:47,733 - INFO - Starting to process message with ID: 76502ea4-9e83-46f8-92ff-ca90b2ab0eda.
+   2023-10-09 17:19:47,734 - INFO - Starting to process message with ID: c36db7c3-e173-4335-b540-a8134b38252d.
+   2023-10-09 17:19:47,734 - INFO - Starting to process message with ID: 4708f899-d1e4-41c5-a784-6193f377e368.
+   2023-10-09 17:19:47,734 - INFO - Processing : 10 messages
+   2023-10-09 17:19:47,737 - INFO - Finished processing all messages.
+   2023-10-09 17:19:47,737 - INFO - Messages processed and saved to database.
+   2023-10-09 17:19:47,758 - INFO - Deleted message with length: 10 from SQS.
+   2023-10-09 17:19:47,777 - WARNING - No messages received from SQS.
+   2023-10-09 17:19:47,777 - INFO - Database connection close
    ```
 
    
 
-9. **Run the Application**
-  ![Alt text](image.png)
+10. **Run the Application**
+     ![image-20231009172035340](D:\github\ETL off an SQS Queue\ETL-off-an-SQS-Queue\result)
 ### Thoughts of design:
 1. **Privacy First**: Given the sensitivity of IP and Device IDs, I employed DES hashing to mask these fields. This ensures data privacy while maintaining the uniqueness and consistency of the data.
 2. **Reliability**: Messages are deleted from the queue only after successful processing and storage in PostgreSQL, ensuring data integrity.
@@ -110,11 +128,8 @@ This application is designed to efficiently and securely process messages from a
 
 ### Assumptions Made:
 
-- Device ID and IP fields are never null.
 - Duplicates are allowed, assuming downstream data cleaning processes.
 - Valid JSON structure in SQS messages.
-- Pre-existing table schema in PostgreSQL.
-- Properly configured unit tests.
 
 ### Potential Improvements:
 

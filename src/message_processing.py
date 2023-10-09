@@ -3,11 +3,10 @@ from . import database
 from . import maskpii
 import logging
 def process_message(message):
-    """
+    """ 
     Process an individual message from SQS, filter it, and then mask its data.
     """
     logging.info(f"Starting to process message with ID: {message.get('MessageId')}.")
-
     try:
         masked_data = maskpii.mask_data(json.loads(message['Body']))
         processed_message = {
@@ -36,9 +35,19 @@ def write_message_to_postgres(masked_messages, conn):
 def process_and_store_messages(messages, conn):
     """Process messages from SQS and insert into the database."""
     logging.info(f"Received {len(messages)} messages to process.")
+    
+    expected_keys = ['user_id', 'device_type', 'ip', 'device_id', 'locale', 'app_version']
     process_messages = []
+
     for message in messages:
-        process_messages.append(process_message(message))
+        message_body = json.loads(message['Body'])
+        
+        processed_msg = process_message(message)
+        
+        if (processed_msg != None 
+            and all(key in message_body for key in expected_keys)):
+            process_messages.append(processed_msg)  # Append the processed message, not the original message
+
     if process_messages:
         logging.info(f"Processing : {len(process_messages)} messages")
         write_message_to_postgres(process_messages, conn)
