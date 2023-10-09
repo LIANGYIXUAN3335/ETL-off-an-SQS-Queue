@@ -120,7 +120,7 @@ This application is designed to efficiently and securely process messages from a
    
 
 10. **Run the Application**
-     ![image-20231009172035340](D:\github\ETL off an SQS Queue\ETL-off-an-SQS-Queue\result)
+    ![image-20231009172950800](https://github.com/LIANGYIXUAN3335/ETL-off-an-SQS-Queue/blob/main/image.png)
 ### Thoughts of design:
 1. **Privacy First**: Given the sensitivity of IP and Device IDs, I employed DES hashing to mask these fields. This ensures data privacy while maintaining the uniqueness and consistency of the data.
 2. **Reliability**: Messages are deleted from the queue only after successful processing and storage in PostgreSQL, ensuring data integrity.
